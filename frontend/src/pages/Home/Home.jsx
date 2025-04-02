@@ -24,7 +24,6 @@ import {
 } from "lucide-react";
 import { Avatar } from "@mui/material";
 
-// Dummy data for conversations
 const conversations = [
   {
     id: 1,
@@ -93,7 +92,6 @@ const conversations = [
   },
 ];
 
-// Dummy data for active conversation
 const activeConversation = {
   id: 2,
   name: "Sara",
@@ -123,7 +121,6 @@ const activeConversation = {
   ],
 };
 
-// Navigation menu items
 const navItems = [
   { name: "Dashboard", icon: Home, path: "/dashboard" },
   { name: "Inbox", icon: MessageCircle, path: "/inbox", active: true },
@@ -132,7 +129,6 @@ const navItems = [
   { name: "Scheduler", icon: Calendar, path: "/scheduler" },
 ];
 
-// Social media icons
 const socialIcons = [
   { name: "Instagram", icon: Instagram, color: "text-pink-500" },
   { name: "Facebook", icon: Facebook, color: "text-blue-500" },
@@ -144,7 +140,6 @@ const HomePage = () => {
   const [hoveredSidebar, setHoveredSidebar] = useState(false);
   const [activeContact, setActiveContact] = useState(activeConversation);
 
-  // Helper function to render icons for users
   const renderUserIcon = (user) => {
     return (
       <div
@@ -353,7 +348,6 @@ const HomePage = () => {
   );
 };
 
-// Add this CSS to hide scrollbars while maintaining functionality
 const style = document.createElement("style");
 style.textContent = `
   .scrollbar-hide::-webkit-scrollbar {

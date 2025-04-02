@@ -22,7 +22,7 @@ const RecoverPassword = () => {
   const [passwordStrength, setPasswordStrength] = useState("Weak");
   const [actionCode, setActionCode] = useState("");
   const [email, setEmail] = useState("");
-  const [mode, setMode] = useState("reset"); // "reset" or "reauthenticate"
+  const [mode, setMode] = useState("reset");
   const [currentPassword, setCurrentPassword] = useState("");
   const [success, setSuccess] = useState(false);
 
@@ -30,7 +30,6 @@ const RecoverPassword = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Get the action code and email from URL parameters
     const queryParams = new URLSearchParams(location.search);
     const oobCode = queryParams.get("oobCode");
     const emailParam = queryParams.get("email");
@@ -44,7 +43,6 @@ const RecoverPassword = () => {
     }
   }, [location]);
 
-  // Check password strength
   useEffect(() => {
     if (!newPassword) {
       setPasswordStrength("Weak");
@@ -88,29 +86,21 @@ const RecoverPassword = () => {
 
     try {
       if (actionCode) {
-        // For users coming from email link
         await confirmPasswordReset(auth, actionCode, newPassword);
-        // Password update successful
         setSuccess(true);
-        // We'll navigate to login after a short delay
         setTimeout(() => {
           navigate("/login");
         }, 3000);
       } else {
-        // For users who are already signed in but need to reauthenticate
         const user = auth.currentUser;
         if (user) {
           try {
-            // First try to update password directly
             await updatePassword(user, newPassword);
-            // If successful, set success state
             setSuccess(true);
-            // Navigate to login after a short delay
             setTimeout(() => {
               navigate("/login");
             }, 3000);
           } catch (innerError) {
-            // If we get a requires-recent-login error, switch to reauthentication mode
             if (innerError.code === "auth/requires-recent-login") {
               setMode("reauthenticate");
               if (!email && user.email) {
@@ -124,7 +114,6 @@ const RecoverPassword = () => {
             }
           }
         } else {
-          // No user is signed in, redirect to email verification page
           setError(
             "Session expired. Please restart the password reset process."
           );
@@ -158,22 +147,14 @@ const RecoverPassword = () => {
         throw new Error("No user is currently signed in");
       }
 
-      // Create credential with email and password
       const credential = EmailAuthProvider.credential(
         email || user.email,
         currentPassword
       );
-
-      // Reauthenticate
       await reauthenticateWithCredential(user, credential);
-
-      // Now update the password
       await updatePassword(user, newPassword);
-
-      // Success
       setSuccess(true);
 
-      // Navigate to login after success message
       setTimeout(() => {
         navigate("/login");
       }, 3000);
@@ -202,7 +183,6 @@ const RecoverPassword = () => {
     }
   };
 
-  // Success state view
   if (success) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-300 via-blue-500 to-blue-700">

@@ -16,20 +16,17 @@ const EmailVerification = () => {
   const checkVerification = async () => {
     setLoading(true);
     try {
-      // Reload user to get latest verification status
       if (auth.currentUser) {
         await reload(auth.currentUser);
 
         if (auth.currentUser.emailVerified) {
           setIsVerified(true);
 
-          // Update user verification status in Firestore
           const db = getFirestore();
           await updateDoc(doc(db, "users", auth.currentUser.uid), {
             emailVerified: true,
           });
 
-          // Auto redirect after 3 seconds
           setTimeout(() => {
             navigate("/login");
           }, 3000);
@@ -57,13 +54,10 @@ const EmailVerification = () => {
   };
 
   useEffect(() => {
-    // Check verification status every 3 seconds
     const interval = setInterval(checkVerification, 3000);
 
-    // Initial check
     checkVerification();
 
-    // Clear interval on component unmount
     return () => clearInterval(interval);
   }, []);
 

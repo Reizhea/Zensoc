@@ -39,9 +39,7 @@ const Login = () => {
 
       const user = userCredential.user;
 
-      // Check if email is verified
       if (!user.emailVerified) {
-        // Sign out the user since email is not verified
         await signOut(auth);
         setError(
           "Email not verified. Please check your email for verification link."
@@ -52,19 +50,16 @@ const Login = () => {
 
       console.log("User logged in successfully:", user.uid);
 
-      // Store remember me preference if selected
       if (rememberMe) {
         localStorage.setItem("rememberEmail", formData.email);
       } else {
         localStorage.removeItem("rememberEmail");
       }
 
-      // Navigate to dashboard or home page
       navigate("/onboarding/business-details");
     } catch (error) {
       console.error("Error logging in:", error);
 
-      // Handle specific error codes
       if (error.code === "auth/invalid-credential") {
         setError("Invalid email or password. Please try again.");
       } else if (error.code === "auth/too-many-requests") {
@@ -78,8 +73,8 @@ const Login = () => {
   };
   const handleGoogleSignIn = async () => {
     try {
-      await signInWithGoogle(); // Sign in the user
-      navigate("/home"); // Redirect to home page after login
+      await signInWithGoogle();
+      navigate("/home");
     } catch (error) {
       console.error("Login failed", error);
     }
@@ -196,7 +191,7 @@ const Login = () => {
           {/* Sign in with Google */}
           <button
             className="w-full max-w-xs sm:max-w-sm md:max-w-md bg-indigo-400 text-gray-300 rounded-full py-3 px-6 flex items-center justify-center text-lg sm:text-xl font-medium hover:bg-opacity-100 hover:bg-blue-50 hover:text-blue-400 transition duration-300 shadow-lg"
-            onClick={handleGoogleSignIn} // Use the updated handler
+            onClick={handleGoogleSignIn}
           >
             <GoogleIcon className="mr-3" />
             Login with Google

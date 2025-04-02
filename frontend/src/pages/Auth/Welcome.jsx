@@ -8,12 +8,12 @@ import GoogleIcon from "@mui/icons-material/Google";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 const Welcome = () => {
-  const navigate = useNavigate(); // Initialize navigation
+  const navigate = useNavigate();
 
   const handleGoogleSignIn = async () => {
     try {
-      await signInWithGoogle(); // Sign in the user
-      navigate("/home"); // Redirect to home page after login
+      await signInWithGoogle();
+      navigate("/home");
     } catch (error) {
       console.error("Login failed", error);
     }
@@ -54,7 +54,7 @@ const Welcome = () => {
           {/* Sign in with Google */}
           <button
             className="w-full max-w-xs sm:max-w-sm md:max-w-md bg-indigo-400 text-gray-300 rounded-full py-3 px-6 flex items-center justify-center text-lg sm:text-xl font-medium hover:bg-opacity-100 hover:bg-blue-50 hover:text-blue-400 transition duration-300 shadow-lg"
-            onClick={handleGoogleSignIn} // Use the updated handler
+            onClick={handleGoogleSignIn}
           >
             <GoogleIcon className="mr-3" />
             Sign up with Google
@@ -68,18 +68,6 @@ const Welcome = () => {
             <EmailIcon className="mr-3" />
             Sign up with E-mail
           </Link>
-
-          {/* Terms and Privacy Policy */}
-          {/* <p className="text-center text-white mt-6 text-sm sm:text-base">
-            By creating an account, you agree to our <br />
-            <Link to="/terms" className="underline">
-              Terms of Service
-            </Link>{" "}
-            and{" "}
-            <Link to="/privacy" className="underline">
-              Privacy Policy
-            </Link>
-          </p> */}
         </div>
       </div>
     </div>

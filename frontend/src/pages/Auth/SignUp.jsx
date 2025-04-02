@@ -44,14 +44,12 @@ const Signup = () => {
     setIsLoading(true);
     setError(null);
 
-    // Check if terms are agreed
     if (!formData.agreeTerms) {
       setError("You must agree to the Terms and Conditions to sign up.");
       setIsLoading(false);
       return;
     }
 
-    // Construct date of birth
     const dateOfBirth = `${formData.year}-${String(formData.month).padStart(
       2,
       "0"
@@ -346,7 +344,7 @@ const Signup = () => {
             variant="contained"
             color="primary"
             fullWidth
-            disabled={!formData.agreeTerms || isLoading} // Disable if not agreed or loading
+            disabled={!formData.agreeTerms || isLoading}
             className="mt-4"
           >
             {isLoading ? "Signing up..." : "Sign up"}
