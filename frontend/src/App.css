@@ -201,3 +201,11 @@
     max-width: 250px;
   }
 }
+html, body {
+  overflow: hidden;
+  scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}

@@ -1,19 +1,42 @@
-import { auth } from "./firebase";
+import { auth, db } from "./firebase";
 import {
   GoogleAuthProvider,
+  FacebookAuthProvider,
   signInWithPopup,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
   signOut,
 } from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 // Google Sign-In
 export const signInWithGoogle = async () => {
   const provider = new GoogleAuthProvider();
+
   try {
     const result = await signInWithPopup(auth, provider);
-    return result.user;
+    const user = result.user;
+
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      const userData = {
+        name: user.displayName || "",
+        email: user.email,
+        phone: user.phoneNumber || "",
+        dateOfBirth: null,
+        emailVerified: user.emailVerified,
+        createdAt: new Date().toISOString()
+      };
+
+      await setDoc(userRef, userData);
+      await setDoc(doc(db, "facebookTokens", user.uid), { accessToken: "" });
+      await setDoc(doc(db, "instaTokens", user.uid), { accessToken: "" });
+    }
+
+    return user;
   } catch (error) {
     console.error("Google Sign-In Error:", error);
     throw error;

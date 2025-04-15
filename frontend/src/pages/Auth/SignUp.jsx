@@ -12,7 +12,8 @@ import {
 } from "firebase/auth";
 import { TextField, Button } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { db } from "../../firebase/firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -68,7 +69,6 @@ const Signup = () => {
       await sendEmailVerification(user);
       setVerificationSent(true);
 
-      const db = getFirestore();
       await setDoc(doc(db, "users", user.uid), {
         name: formData.name,
         email: formData.email,
@@ -76,6 +76,14 @@ const Signup = () => {
         dateOfBirth: dateOfBirth,
         emailVerified: false,
         createdAt: new Date().toISOString(),
+      });
+
+      await setDoc(doc(db, "facebookTokens", user.uid), {
+        accessToken: "",
+      });
+  
+      await setDoc(doc(db, "instaTokens", user.uid), {
+        accessToken: "",
       });
 
       console.log("User created successfully:", user.uid);
