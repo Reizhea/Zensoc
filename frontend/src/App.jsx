@@ -12,8 +12,12 @@ import ForgotPassword from "./pages/Auth/ForgotPassword";
 import RecoverEmail from "./pages/Auth/RecoverEmail";
 import BusinessDetails from "./pages/Onboarding/BusinessDetails";
 import Confirmation from "./pages/Onboarding/Confirmation";
-import Home from "./pages/Home/Home";
-import Settings from "./pages/Home/SettingsPage";
+import Home from "./pages/Main/Home";
+import Settings from "./pages/Main/SettingsPage";
+import Dashboard from "./pages/Main/Dashboard";
+import Analytics from "./pages/Main/Analytics";
+import Listener from "./pages/Main/Listener";
+import Scheduler from "./pages/Main/Scheduler";
 import EmailVerification from "./pages/Auth/verifyEmail";
 import { auth } from "./firebase/firebase";
 
@@ -43,33 +47,49 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/email-verification" element={<EmailVerification />} />
-        <Route
-          path="/onboarding/business-details"
-          element={
+        <Route path="/onboarding/business-details"element={
             <ProtectedRoute>
               <BusinessDetails />
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/home"
-          element={
+        <Route path="/home" element={
             <ProtectedRoute>
               <Home />
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/settings"
-          element={
+        <Route path="/settings" element={
             <ProtectedRoute>
               <Settings />
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/onboarding/confirmation"
-          element={
+        <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/analytics" element={
+            <ProtectedRoute>
+              <Analytics />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/listener" element={
+            <ProtectedRoute>
+              <Listener />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/scheduler" element={
+            <ProtectedRoute>
+              <Scheduler />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/onboarding/confirmation" element={
             <ProtectedRoute>
               <Confirmation />
             </ProtectedRoute>

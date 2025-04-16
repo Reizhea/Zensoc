@@ -59,7 +59,7 @@ const Sidebar = ({ alwaysExpanded = false }) => {
         <div className={isSettingsPage && expanded ? "mb-66.5" : ""}>
           <div className="flex items-center justify-center h-20 border-b border-gray-800">
             <img
-              src="/src/assets/ZenSocLogo.svg"
+              src="/src/assets/ZenSocLogo.png"
               alt="ZenSoc"
               className={`transition-all duration-300 ${expanded ? "w-28" : "w-8"}`}
             />

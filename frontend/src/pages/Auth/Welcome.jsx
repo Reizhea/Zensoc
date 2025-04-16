@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { signInWithGoogle } from "../../firebase/auth";
-import ZenSocLogo from "../../assets/ZenSocLogo.svg";
+import ZenSocLogo from "../../assets/ZenSocLogo.png";
 import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
 import GoogleIcon from "@mui/icons-material/Google";
@@ -33,7 +33,7 @@ const Welcome = () => {
 
       {/* Logo */}
       <div className="relative w-full max-w-md">
-        <div className="flex justify-center items-center mb-16 ml-30">
+        <div className="flex justify-center items-center mb-16">
           <img
             src={ZenSocLogo}
             alt="ZenSoc Logo"
