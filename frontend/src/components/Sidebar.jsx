@@ -10,6 +10,7 @@ import {
   Settings,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import ZenSocLogo from "../assets/ZenSocLogo.png";
 
 const navItems = [
   { name: "Dashboard", icon: Home, path: "/dashboard" },
@@ -59,7 +60,7 @@ const Sidebar = ({ alwaysExpanded = false }) => {
         <div className={isSettingsPage && expanded ? "mb-66.5" : ""}>
           <div className="flex items-center justify-center h-20 border-b border-gray-800">
             <img
-              src="/src/assets/ZenSocLogo.png"
+              src={ZenSocLogo}
               alt="ZenSoc"
               className={`transition-all duration-300 ${expanded ? "w-28" : "w-8"}`}
             />
