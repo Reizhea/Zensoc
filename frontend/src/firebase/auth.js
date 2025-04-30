@@ -1,7 +1,6 @@
 import { auth, db } from "./firebase";
 import {
   GoogleAuthProvider,
-  FacebookAuthProvider,
   signInWithPopup,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -32,8 +31,7 @@ export const signInWithGoogle = async () => {
       };
 
       await setDoc(userRef, userData);
-      await setDoc(doc(db, "facebookTokens", user.uid), { accessToken: "" });
-      await setDoc(doc(db, "instaTokens", user.uid), { accessToken: "" });
+      await setDoc(doc(db, "metaTokens", user.uid), { fbToken: "", instaToken: "" });
     }
 
     return user;

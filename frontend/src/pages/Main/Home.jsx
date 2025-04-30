@@ -17,7 +17,7 @@ const HomePage = () => {
       <Sidebar />
 
       <div className="w-16 border-r border-gray-800 bg-gray-900 flex flex-col">
-        <div className="flex-1 flex flex-col items-center pt-6 space-y-6">
+        <div className="flex-1 flex flex-col items-center pt-24 space-y-2">
           {socialIcons.map((item) => (
             <div
               key={item.name}

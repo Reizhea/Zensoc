@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect,useState } from "react";
 import {
   Home,
   MessageCircle,
@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import ZenSocLogo from "../assets/ZenSocLogo.png";
+import { auth, db } from "../firebase/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 const navItems = [
   { name: "Dashboard", icon: Home, path: "/dashboard" },
@@ -25,6 +27,24 @@ const Sidebar = ({ alwaysExpanded = false }) => {
   const expanded = alwaysExpanded || hovered;
   const location = useLocation();
   const isSettingsPage = location.pathname === "/settings";
+  const [userName, setUserName] = useState("User");
+  
+  useEffect(() => {
+    const fetchUserName = async () => {
+      const currentUser = auth.currentUser;
+      if (!currentUser) return;
+  
+      const userRef = doc(db, "users", currentUser.uid);
+      const snap = await getDoc(userRef);
+  
+      if (snap.exists()) {
+        const data = snap.data();
+        setUserName(data.name || "User");
+      }
+    };
+  
+    fetchUserName();
+  }, []);
 
   const renderItem = ({ name, icon: Icon, path }) => {
     const isActive = location.pathname === path;
@@ -65,7 +85,7 @@ const Sidebar = ({ alwaysExpanded = false }) => {
               className={`transition-all duration-300 ${expanded ? "w-28" : "w-8"}`}
             />
           </div>
-          <div className="py-4 flex flex-col gap-1">
+          <div className="py-4 flex flex-col gap-2">
             {navItems.map(renderItem)}
           </div>
         </div>
@@ -80,7 +100,7 @@ const Sidebar = ({ alwaysExpanded = false }) => {
             <div className="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center">
               <User className="w-4 h-4 text-gray-300" />
             </div>
-            {expanded && <span>User</span>}
+            {expanded && <span>{userName}</span>}
           </div>
         </div>
       </div>

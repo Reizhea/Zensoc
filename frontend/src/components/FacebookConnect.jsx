@@ -14,13 +14,13 @@ const FacebookConnect = () => {
   useEffect(() => {
     const checkConnection = async () => {
       if (!user) return;
-      const ref = doc(db, "facebookTokens", user.uid);
+      const ref = doc(db, "metaTokens", user.uid);
       const snap = await getDoc(ref);
-      setIsConnected(snap.exists() && snap.data().accessToken);
+      setIsConnected(snap.exists() && snap.data().fbToken);
 
       if (snap.exists()) {
         const data = snap.data();
-        setIsConnected(!!data.accessToken);
+        setIsConnected(!!data.fbToken);
         if (data.pageName) setSelectedPageName(data.pageName);
       }
     
@@ -30,32 +30,36 @@ const FacebookConnect = () => {
 
   const handleConnect = () => {
     if (!window.FB || !user) return;
-
+  
     window.FB.login(
       (response) => {
         if (response.authResponse) {
           const accessToken = response.authResponse.accessToken;
-
+  
           (async () => {
             try {
               const res = await axios.post(
                 `${import.meta.env.VITE_BACKEND_URL}/api/facebook/long-token`,
                 { accessToken }
               );
-
+  
               const longLivedToken = res.data.longLivedToken;
-
-              await setDoc(doc(db, "facebookTokens", user.uid), {
-                accessToken: longLivedToken,
-                createdAt: serverTimestamp(),
+  
+              await setDoc(doc(db, "metaTokens", user.uid), {
+                fbToken: longLivedToken,
+                fbConnectedAt: serverTimestamp(),
               });
-
+  
               setIsConnected(true);
-
-              await fetchPages(longLivedToken);
-              setShowDialog(true);
+  
+              // Wait for token to settle
+              setTimeout(async () => {
+                await fetchPages(longLivedToken);
+                setShowDialog(true);
+              }, 1000);
+  
             } catch (err) {
-              console.error("Failed to save access token:", err);
+              console.error("Failed to save facebook access token:", err);
             }
           })();
         } else {
@@ -63,12 +67,13 @@ const FacebookConnect = () => {
         }
       },
       {
-        scope: "pages_show_list,pages_read_engagement,pages_messaging",
+        scope: "pages_show_list,pages_read_engagement,pages_messaging,instagram_basic,instagram_manage_messages,business_management",
       }
     );
   };
 
   const fetchPages = async (token) => {
+    console.log("Fetching pages with token:", token);
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/facebook/get-pages`,
@@ -83,8 +88,8 @@ const FacebookConnect = () => {
   const handlePageSelection = async (page) => {
     if (!user) return;
     try {
-      await setDoc(doc(db, "facebookTokens", user.uid), {
-        pageaccessToken: page.accessToken,
+      await setDoc(doc(db, "metaTokens", user.uid), {
+        pageToken: page.accessToken,
         pageId: page.pageId,
         pageName: page.name,
       }, { merge: true });
@@ -96,15 +101,15 @@ const FacebookConnect = () => {
   };
 
   const handleSelectClick = async () => {
-    const ref = doc(db, "facebookTokens", user.uid);
+    const ref = doc(db, "metaTokens", user.uid);
     const snap = await getDoc(ref);
-    const token = snap.data().accessToken;
+    const token = snap.data().fbToken;
     await fetchPages(token);
     setShowDialog(true);
   };
 
   return (
-    <div className="bg-gray-800 p-6 rounded-xl flex flex-col items-center w-64 relative">
+    <div className="bg-gray-800 p-1 rounded-xl flex flex-col items-center w-56 relative">
       <img
         src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Facebook_logo_%28square%29.png/900px-Facebook_logo_%28square%29.png"
         alt="Facebook Logo"

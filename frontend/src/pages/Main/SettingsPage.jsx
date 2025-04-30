@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import FacebookConnect from "../../components/FacebookConnect";
+import InstagramConnect from "../../components/InstaConnect";
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState("general");
@@ -65,8 +66,9 @@ const Settings = () => {
           )}
 
             {activeTab === "connections" && (
-              <div className="flex space-x-6 items-start">
+              <div className="flex items-start">
                 <FacebookConnect />
+                <InstagramConnect />
               </div>
             )}
 

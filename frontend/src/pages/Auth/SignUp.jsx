@@ -78,13 +78,11 @@ const Signup = () => {
         createdAt: new Date().toISOString(),
       });
 
-      await setDoc(doc(db, "facebookTokens", user.uid), {
-        accessToken: "",
+      await setDoc(doc(db, "metaTokens", user.uid), {
+        fbToken: "",
+        instaToken: "",
       });
-  
-      await setDoc(doc(db, "instaTokens", user.uid), {
-        accessToken: "",
-      });
+
 
       console.log("User created successfully:", user.uid);
       navigate("/email-verification", {

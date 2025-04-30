@@ -19,11 +19,7 @@ import Analytics from "./pages/Main/Analytics";
 import Listener from "./pages/Main/Listener";
 import Scheduler from "./pages/Main/Scheduler";
 import EmailVerification from "./pages/Auth/verifyEmail";
-import { auth } from "./firebase/firebase";
-
-const ProtectedRoute = ({ children }) => {
-  return auth.currentUser ? children : <Navigate to="/login" />;
-};
+import ProtectedRoute from "./utils/ProtectedRoute";
 
 function App() {
   useEffect(() => {

@@ -7,6 +7,7 @@ import { doc, getDoc } from "firebase/firestore";
 
 const FacebookInbox = () => {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+  const [loading, setLoading] = useState(true); // NEW
   const [hasToken, setHasToken] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [activeContact, setActiveContact] = useState(null);
@@ -17,17 +18,19 @@ const FacebookInbox = () => {
   const messageEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const isManuallySwitching = useRef(false);
+  const messageToSendRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     const fetchConversations = async () => {
       const user = auth.currentUser;
-      if (!user) return;
+      if (!user) return setLoading(false);
 
-      const ref = doc(db, "facebookTokens", user.uid);
+      const ref = doc(db, "metaTokens", user.uid);
       const snap = await getDoc(ref);
 
-      const tokenExists = snap.exists() && !!snap.data().accessToken;
-      const pageToken = snap.data()?.pageaccessToken;
+      const tokenExists = snap.exists() && !!snap.data().fbToken;
+      const pageToken = snap.data()?.pageToken;
       const page = snap.data()?.pageId;
 
       setHasToken(tokenExists);
@@ -37,7 +40,7 @@ const FacebookInbox = () => {
       if (!tokenExists || !pageToken || !page) {
         setConversations([]);
         setActiveContact(null);
-        return;
+        return setLoading(false);
       }
 
       try {
@@ -59,9 +62,12 @@ const FacebookInbox = () => {
             messages,
             userId: userMsg?.userId,
           });
+          setTimeout(() => inputRef.current?.focus(), 100);
         }
       } catch (err) {
         console.error("Failed to fetch conversations:", err);
+      } finally {
+        setLoading(false); // ✅ Done loading
       }
     };
 
@@ -72,13 +78,29 @@ const FacebookInbox = () => {
           `${BACKEND_URL}/api/facebook/conversation/${activeContact.id}/messages`,
           { params: { name: activeContact.name, token: pageAccessToken, pageId } }
         );
+
         const messages = res.data.messages;
-        const userMsg = messages.find((m) => m.sender === "them");
-        setActiveContact((prev) => ({
-          ...prev,
-          messages,
-          userId: userMsg?.userId,
-        }));
+        const newMsgInResponse = messages.some((m) => m.text === messageToSendRef.current);
+
+        if (newMsgInResponse) {
+          messageToSendRef.current = null;
+          const userMsg = messages.find((m) => m.sender === "them");
+        
+          const isSame =
+            activeContact.messages.length === messages.length &&
+            activeContact.messages.every((msg, i) => {
+              const incoming = messages[i];
+              return msg.text === incoming.text && msg.sender === incoming.sender;
+            });
+        
+          if (!isSame) {
+            setActiveContact((prev) => ({
+              ...prev,
+              messages,
+              userId: userMsg?.userId,
+            }));
+          }
+        }
       } catch (err) {
         console.error("Failed to fetch messages:", err);
       }
@@ -108,7 +130,10 @@ const FacebookInbox = () => {
 
   const handleSendMessage = async () => {
     if (!input.trim() || !pageAccessToken || !activeContact?.userId) return;
-  
+    const lastMsg = [...(activeContact.messages || [])].filter(m => m.sender === "them").reverse()[0];
+    const lastTime = new Date(lastMsg?.time || 0);
+    const useMessageTag = (Date.now() - lastTime.getTime()) > 86400000;
+
     const optimisticId = `temp-${Date.now()}`;
     const optimisticMsg = {
       id: optimisticId,
@@ -121,30 +146,32 @@ const FacebookInbox = () => {
       }),
       optimistic: true,
     };
-  
+
     setActiveContact((prev) => ({
       ...prev,
       messages: [...(prev?.messages || []), optimisticMsg],
     }));
-  
+
     const messageToSend = input;
+    messageToSendRef.current = messageToSend;
     setInput("");
-  
+
     try {
       await axios.post(`${BACKEND_URL}/api/facebook/send-message`, {
         pageAccessToken,
         recipientId: activeContact.userId,
         message: messageToSend,
+        useMessageTag,
       });
-  
+
       const res = await axios.get(
         `${BACKEND_URL}/api/facebook/conversation/${activeContact.id}/messages`,
         { params: { name: activeContact.name, token: pageAccessToken, pageId } }
       );
-  
+
       const messages = res.data.messages;
       const userMsg = messages.find((m) => m.sender === "them");
-  
+
       setActiveContact((prev) => ({
         ...prev,
         messages,
@@ -154,8 +181,17 @@ const FacebookInbox = () => {
       console.error("Failed to send message:", err);
     }
   };
-  
 
+  // ✅ Loader first
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center w-full h-full">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  // 👇 Show connect if no token
   if (!hasToken) {
     return (
       <div className="text-center mt-20 w-full">
@@ -221,7 +257,7 @@ const FacebookInbox = () => {
                   );
                   const messages = res.data.messages;
                   const userMsg = messages.find((m) => m.sender === "them");
-              
+                  setTimeout(() => inputRef.current?.focus(), 100);
                   setActiveContact({
                     ...conversation,
                     messages,
@@ -237,7 +273,12 @@ const FacebookInbox = () => {
                 }
               }}              
             >
-              <div className="relative">{renderUserIcon(conversation)}</div>
+              <div className="relative">
+                {renderUserIcon(conversation)}
+                {conversation.unreadCount > 0 && (
+                  <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-blue-500 rounded-full"></div>
+                )}
+              </div>
               <div className="ml-3 flex-1">
                 <div className="flex justify-between items-center">
                   <h3 className="font-medium">{conversation.name}</h3>
@@ -289,6 +330,7 @@ const FacebookInbox = () => {
           <div className="flex items-center bg-gray-800 rounded-full px-4 py-2">
             <Smile className="w-6 h-6 text-blue-500 mr-2" />
             <input
+              ref={inputRef}
               type="text"
               placeholder="Type a reply..."
               value={input}

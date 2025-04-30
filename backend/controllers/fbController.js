@@ -171,7 +171,6 @@ const getMessagesForConversation = async (req, res) => {
         };
       })
       .reverse();
-
     const lastUserMsg = messages.find((msg) => msg.sender === "them");
 
     res.status(200).json({
@@ -184,6 +183,33 @@ const getMessagesForConversation = async (req, res) => {
   } catch (err) {
     console.error("Failed to fetch messages:", err.response?.data || err.message);
     res.status(500).json({ error: "Failed to fetch messages" });
+  }
+};
+
+const sendFacebookMessage = async (req, res) => {
+  const { pageAccessToken, recipientId, message, useMessageTag } = req.body;
+
+  if (!pageAccessToken || !recipientId || !message) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+  const payload = {
+    recipient: { id: recipientId },
+    message: { text: message },
+    messaging_type: useMessageTag ? "MESSAGE_TAG" : "RESPONSE",
+    ...(useMessageTag && { tag: "ACCOUNT_UPDATE" })
+  };
+
+  try {
+    await axios.post(`https://graph.facebook.com/v19.0/me/messages`, payload, {
+      params: {
+        access_token: pageAccessToken
+      }
+    });
+
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.error("Failed to send message:", err.response?.data || err.message);
+    return res.status(500).json({ error: "Failed to send message" });
   }
 };
 
@@ -203,30 +229,6 @@ const markConversationAsRead = async (userId, pageAccessToken) => {
     );
   } catch (err) {
     console.error("Failed to mark as read:", err.response?.data || err.message);
-  }
-};
-
-const sendFacebookMessage = async (req, res) => {
-  const { pageAccessToken, recipientId, message } = req.body;
-
-  if (!pageAccessToken || !recipientId || !message) {
-    return res.status(400).json({ error: "Missing required fields" });
-  }
-
-  try {
-    await axios.post(`https://graph.facebook.com/v19.0/me/messages`, {
-      recipient: { id: recipientId },
-      message: { text: message }
-    }, {
-      params: {
-        access_token: pageAccessToken
-      }
-    });
-
-    return res.status(200).json({ success: true });
-  } catch (err) {
-    console.error("Failed to send message:", err.response?.data || err.message);
-    return res.status(500).json({ error: "Failed to send message" });
   }
 };
 
